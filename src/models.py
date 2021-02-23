@@ -203,7 +203,7 @@ class LpcgOne(ModelData):
         """
 
     name = "LPCG 1.0"
-    fields = ("Line", "Context", "Title", "Sequence", "Prompt")
+    fields = ("Line", "Context", "Title", "Author", "Sequence", "Prompt")
     templates = (LpcgOneTemplate,)
     styling = """
         .card {
