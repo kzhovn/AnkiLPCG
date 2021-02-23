@@ -12,7 +12,7 @@ class PoemLine:
         self.successor: Optional['PoemLine'] = None
         self.seq = -1
 
-    def populate_note(self, note: 'Note', title: str, tags: List[str],
+    def populate_note(self, note: 'Note', title: str, author: str, tags: List[str],
                       context_lines: int, recite_lines: int, deck_id: int) -> None:
         """
         Fill the _note_ with content testing on the current line.
@@ -20,6 +20,7 @@ class PoemLine:
         note.model()['did'] = deck_id  # type: ignore
         note.tags = tags
         note['Title'] = title
+        note['Author'] = author
         note['Sequence'] = str(self.seq)
         note['Context'] = self._format_context(context_lines)
         note['Line'] = self._format_text(recite_lines)
@@ -243,7 +244,7 @@ def cleanse_text(string: str, config: Dict[str, Any]) -> List[str]:
 
 
 def add_notes(col: Any, note_constructor: Callable,
-              title: str, tags: List[str], text: List[str], deck_id: int,
+              title: str, author: str, tags: List[str], text: List[str], deck_id: int,
               context_lines: int, group_lines: int, recite_lines: int):
     """
     Generate notes from the given title, tags, poem text, and number of
@@ -258,7 +259,7 @@ def add_notes(col: Any, note_constructor: Callable,
     added = 0
     for line in _poemlines_from_textlines(text, group_lines):
         n = note_constructor(col, col.models.byName("LPCG 1.0"))
-        line.populate_note(n, title, tags, context_lines, recite_lines, deck_id)
+        line.populate_note(n, title, author, tags, context_lines, recite_lines, deck_id)
         col.addNote(n)
         added += 1
     return added
