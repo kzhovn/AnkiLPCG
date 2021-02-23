@@ -66,9 +66,12 @@ class LPCGDialog(QDialog):
         if self.config['autoTagTitle']:
             title_tag = title.replace(" ", self.config['autoTagWhitespaceReplace']) #TEST: do tags break with tabs/special chars/etc?
             tags.append(title_tag) 
-        if self.config['autoTagAuthor']:
-            #TODO: autotag last name
-            author_tag = author.replace(" ", self.config['autoTagWhitespaceReplace'])
+        if self.config['autoTagAuthor'] and author != "":
+            if self.config['autoTagAuthorLastName']:
+                *first, last = author.split()
+                author_tag = last
+            else:
+                author_tag = author.replace(" ", self.config['autoTagWhitespaceReplace'])
             tags.append(author_tag)
 
         "Add given prefix to all tags if enabled"

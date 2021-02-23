@@ -3,7 +3,7 @@
     "endOfTextMarker": " □",
     "autoTagTitle": true,
     "autoTagAuthor": true,
-    "autoTagAuthorLastName": false,
+    "autoTagAuthorLastName": true,
     "autoTagPrefix": "Poetry::",
     "autoTagWhitespaceReplace": "-"
 }
