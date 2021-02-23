@@ -68,8 +68,8 @@ class LPCGDialog(QDialog):
             tags.append(title_tag) 
         if self.config['autoTagAuthor'] and author != "":
             if self.config['autoTagAuthorLastName']:
-                *first, last = author.split()
-                author_tag = last
+                *first, last_name = author.split()
+                author_tag = last_name
             else:
                 author_tag = author.replace(" ", self.config['autoTagWhitespaceReplace'])
             tags.append(author_tag)

@@ -42,7 +42,7 @@
      <item row="4" column="0">
       <widget class="QLabel" name="label_author">
        <property name="text">
-        <string>Author</string>
+        <string>&amp;Author</string>
        </property>
        <property name="buddy">
         <cstring>authorBox</cstring>

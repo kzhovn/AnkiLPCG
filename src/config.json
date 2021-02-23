@@ -1,6 +1,7 @@
 {
     "endOfStanzaMarker": " ⊗",
     "endOfTextMarker": " □",
+
     "autoTagTitle": true,
     "autoTagAuthor": true,
     "autoTagAuthorLastName": true,
