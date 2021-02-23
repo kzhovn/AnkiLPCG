@@ -1,10 +1,12 @@
 {
-    "endOfStanzaMarker": " ⊗",
-    "endOfTextMarker": " □",
-
-    "autoTagTitle": true,
-    "autoTagAuthor": true,
-    "autoTagAuthorLastName": true,
+    "autoTagAuthor": false,
+    "autoTagAuthorLastName": false,
     "autoTagPrefix": "Poetry::",
-    "autoTagWhitespaceReplace": "-"
+    "autoTagTitle": false,
+    "autoTagWhitespaceReplace": "-",
+
+    
+    "endOfStanzaMarker": " ⊗",
+    "endOfTextMarker": " □"
+
 }
