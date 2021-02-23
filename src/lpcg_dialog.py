@@ -26,6 +26,7 @@ class LPCGDialog(QDialog):
     """
     def __init__(self, mw):
         self.mw = mw
+        self.config = self.mw.addonManager.getConfig(__name__)
 
         QDialog.__init__(self)
         self.form = lpcg_form.Ui_Dialog()
@@ -41,6 +42,8 @@ class LPCGDialog(QDialog):
     def accept(self):
         "On close, create notes from the contents of the poem editor."
         title = self.form.titleBox.text().strip()
+        author = self.form.authorBox.text().strip()
+
 
         if not title:
             showWarning("You must enter a title for this poem.")
@@ -56,10 +59,24 @@ class LPCGDialog(QDialog):
                         '"Open File" button to import a text file.')
             return
 
-        author = self.form.authorBox.text().strip()
+
         tags = self.mw.col.tags.split(self.form.tagsBox.text())
-        text = cleanse_text(self.form.textBox.toPlainText().strip(),
-                            self.mw.addonManager.getConfig(__name__))
+
+        "Auto tag title/author if enabled"
+        if self.config['autoTagTitle']:
+            title_tag = title.replace(" ", self.config['autoTagWhitespaceReplace']) #TEST: do tags break with tabs/special chars/etc?
+            tags.append(title_tag) 
+        if self.config['autoTagAuthor']:
+            #TODO: autotag last name
+            author_tag = author.replace(" ", self.config['autoTagWhitespaceReplace'])
+            tags.append(author_tag)
+
+        "Add given prefix to all tags if enabled"
+        if self.config['autoTagPrefix'] != "":
+            tags = [self.config['autoTagPrefix'] + tag for tag in tags]
+
+
+        text = cleanse_text(self.form.textBox.toPlainText().strip(), self.config)
         context_lines = self.form.contextLinesSpin.value()
         recite_lines = self.form.reciteLinesSpin.value()
         group_lines = self.form.groupLinesSpin.value()

@@ -1,4 +1,9 @@
 {
     "endOfStanzaMarker": " ⊗",
-    "endOfTextMarker": " □"
+    "endOfTextMarker": " □",
+    "autoTagTitle": true,
+    "autoTagAuthor": true,
+    "autoTagAuthorLastName": false,
+    "autoTagPrefix": "Poetry::",
+    "autoTagWhitespaceReplace": "-"
 }
