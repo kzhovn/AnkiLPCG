@@ -7,22 +7,7 @@ import pytest
 from src.gen_notes import *
 
 
-MOCK_DEFAULT_CONFIG = {
-    "endOfStanzaMarker": "Y",
-    "endOfTextMarker": "X",
-    "autoTagTitle": False,
-    "autoTagAuthor:": False,
-    "autoTagAuthorLastName": False,
-    "autoTagPrefix": "",
-    "autoTagWhitespaceReplace": "-"}
-MOCK_AUTOTAG_CONFIG = {
-    "endOfStanzaMarker": "Y",
-    "endOfTextMarker": "X",
-    "autoTagTitle": True,
-    "autoTagAuthor:": True,
-    "autoTagAuthorLastName": False,
-    "autoTagPrefix": "Poetry::",
-    "autoTagWhitespaceReplace": "-"}
+MOCK_CLEANSE_CONFIG = {'endOfTextMarker': 'X', 'endOfStanzaMarker': 'Y'}
 INDENT_HTML_START = '<span class="indent">'
 INDENT_HTML_END = '</span>'
 
@@ -50,7 +35,7 @@ class TestCleanseText:
           To do it en masse,
         Your remembering would turn out much worsal.
         """).strip()
-        result = cleanse_text(limerick, MOCK_DEFAULT_CONFIG)
+        result = cleanse_text(limerick, MOCK_CLEANSE_CONFIG)
 
         assert result[0] == "You can get a good deal from rehearsal"
         assert result[1] == "If it just has the proper dispersal.Y"
@@ -73,7 +58,7 @@ class TestCleanseText:
 
         And here, at last, is the end of the poem.
         """).strip() + "\n\n"
-        result = cleanse_text(test_case, MOCK_DEFAULT_CONFIG)
+        result = cleanse_text(test_case, MOCK_CLEANSE_CONFIG)
 
         assert result[0] == "Here is a first lineY"
         assert result[1] == "And here is a second line."
@@ -91,7 +76,7 @@ class TestCleanseText:
            To do it en masse,
         Your remembering would turn out much worsal.
         """).strip()
-        result = cleanse_text(limerick, MOCK_DEFAULT_CONFIG)
+        result = cleanse_text(limerick, MOCK_CLEANSE_CONFIG)
 
         assert result[0] == "You can get a good deal from rehearsal"
         assert result[1] == "If it just has the proper dispersal.Y"
@@ -105,7 +90,7 @@ class TestCleanseText:
         Here is a line # with a comment
         And a second line.
         """).strip()
-        result = cleanse_text(limerick, MOCK_DEFAULT_CONFIG)
+        result = cleanse_text(limerick, MOCK_CLEANSE_CONFIG)
 
         assert result[0] == "Here is a line"
         assert result[1] == "And a second line.X"
@@ -147,15 +132,11 @@ class MockModel:
 
 
 class MockCollection:
-    def __init__(self, config):
+    def __init__(self):
         self.notes = []
-        self.config = config
 
     def addNote(self, note):
         self.notes.append(note)
-
-    def getWhitespaceReplacer(self):
-        return self.config['autoTagWhitespaceReplace']
 
     @property
     def models(self):
@@ -183,8 +164,8 @@ class MockNote:
 
 
 @pytest.fixture
-def mock_note_default():
-    col = MockCollection(MOCK_DEFAULT_CONFIG)
+def mock_note():
+    col = MockCollection()
     note_constructor = MockNote
     title = "'Tis Winter"
     author = "Samuel Longfellow"
@@ -193,43 +174,28 @@ def mock_note_default():
     context_lines = 2
     recite_lines = 1
     group_lines = 1
-    text = cleanse_text(test_poem, MOCK_DEFAULT_CONFIG)
+    text = cleanse_text(test_poem, MOCK_CLEANSE_CONFIG)
     return dict(locals())
 
-# #this is stupid; figure out how pytest works so you're not duplicating logic
-# @pytest.fixture
-# def mock_note_autotag():
-#     col = MockCollection(MOCK_AUTOTAG_CONFIG)
-#     note_constructor = MockNote
-#     title = "'Tis Winter"
-#     author = "Samuel Longfellow"
-#     tags = ["poem", "test"]
-#     deck_id = 1
-#     context_lines = 2
-#     recite_lines = 1
-#     group_lines = 1
-#     text = cleanse_text(test_poem, MOCK_AUTOTAG_CONFIG)
-#     return dict(locals())
 
-
-def test_render_default_settings(mock_note_default):
-    col = mock_note_default['col']
-    num_added = add_notes(**mock_note_default)
+def test_render_default_settings(mock_note):
+    col = mock_note['col']
+    num_added = add_notes(**mock_note)
 
     assert num_added == 16
     assert len(col.notes) == 16
 
-    assert col.notes[0]['Title'] == mock_note_default['title']
-    assert col.notes[0]['Author'] == mock_note_default['author']
-    assert col.notes[0].tags == mock_note_default['tags']
+    assert col.notes[0]['Title'] == mock_note['title']
+    assert col.notes[0]['Author'] == mock_note['author']
+    assert col.notes[0].tags == mock_note['tags']
     assert col.notes[0]['Sequence'] == "1"
     assert col.notes[0]['Context'] == "<p>[Beginning]</p>"
     assert col.notes[0]['Line'] == "<p>'Tis winter now; the fallen snow</p>"
     assert 'Prompt' not in col.notes[0]
 
-    assert col.notes[3]['Title'] == mock_note_default['title']
-    assert col.notes[3]['Author'] == mock_note_default['author']
-    assert col.notes[3].tags == mock_note_default['tags']
+    assert col.notes[3]['Title'] == mock_note['title']
+    assert col.notes[3]['Author'] == mock_note['author']
+    assert col.notes[3].tags == mock_note['tags']
     assert col.notes[3]['Sequence'] == "4"
     assert col.notes[3]['Context'] == (
         "<p>Has left the heavens all coldly clear;</p>"
@@ -238,41 +204,12 @@ def test_render_default_settings(mock_note_default):
     assert col.notes[3]['Line'] == "<p>And all the earth lies dead and drear.Y</p>"
     assert 'Prompt' not in col.notes[3]
 
-# def test_render_autotag(mock_note_autotag):
-#     col = mock_note_autotag['col']
-#     num_added = add_notes(**mock_note_autotag)
-
-#     assert num_added == 16
-#     assert len(col.notes) == 16
-
-#     tag_title = mock_note_autotag['title'].replace(" ", col.getWhitespaceReplacer())
-#     tag_author = mock_note_autotag['author'].replace(" ", col.getWhitespaceReplacer())
-#     assert col.notes[0].tags == mock_note_autotag['tags'] + [tag_title, tag_author]
-
-#     assert col.notes[0]['Title'] == mock_note_autotag['title']
-#     assert col.notes[0]['Author'] == mock_note_autotag['author']
-#     assert col.notes[0]['Sequence'] == "1"
-#     assert col.notes[0]['Context'] == "<p>[Beginning]</p>"
-#     assert col.notes[0]['Line'] == "<p>'Tis winter now; the fallen snow</p>"
-#     assert 'Prompt' not in col.notes[0]
-
-#     assert col.notes[3]['Title'] == mock_note_autotag['title']
-#     assert col.notes[3]['Author'] == mock_note_autotag['author']
-#     assert col.notes[3].tags == mock_note_autotag['tags']
-#     assert col.notes[3]['Sequence'] == "4"
-#     assert col.notes[3]['Context'] == (
-#         "<p>Has left the heavens all coldly clear;</p>"
-#         "<p>Through leafless boughs the sharp winds blow,</p>"
-#     )
-#     assert col.notes[3]['Line'] == "<p>And all the earth lies dead and drear.Y</p>"
-#     assert 'Prompt' not in col.notes[3]
-
 
 ### GROUPS ###
-def test_render_groups_of_two(mock_note_default):
-    col = mock_note_default['col']
-    mock_note_default['group_lines'] = 2
-    num_added = add_notes(**mock_note_default)
+def test_render_groups_of_two(mock_note):
+    col = mock_note['col']
+    mock_note['group_lines'] = 2
+    num_added = add_notes(**mock_note)
 
     assert num_added == 8
     assert len(col.notes) == 8
@@ -299,16 +236,16 @@ def test_render_groups_of_two(mock_note_default):
     assert col.notes[1]['Prompt'] == "[...2]"
 
 
-def test_render_groups_of_three(mock_note_default):
-    col = mock_note_default['col']
-    mock_note_default['group_lines'] = 3
-    num_added = add_notes(**mock_note_default)
+def test_render_groups_of_three(mock_note):
+    col = mock_note['col']
+    mock_note['group_lines'] = 3
+    num_added = add_notes(**mock_note)
 
     assert num_added == 6
     assert len(col.notes) == 6
 
-    assert col.notes[0]['Title'] == mock_note_default['title']
-    assert col.notes[0].tags == mock_note_default['tags']
+    assert col.notes[0]['Title'] == mock_note['title']
+    assert col.notes[0].tags == mock_note['tags']
     assert col.notes[0]['Sequence'] == "1"
     assert col.notes[0]['Context'] == "<p>[Beginning]</p>"
     assert col.notes[0]['Line'] == (
@@ -334,10 +271,10 @@ def test_render_groups_of_three(mock_note_default):
 
 
 ### CONTEXT LINES ###
-def test_render_three_context_lines(mock_note_default):
-    col = mock_note_default['col']
-    mock_note_default['context_lines'] = 3
-    num_added = add_notes(**mock_note_default)
+def test_render_three_context_lines(mock_note):
+    col = mock_note['col']
+    mock_note['context_lines'] = 3
+    num_added = add_notes(**mock_note)
 
     assert num_added == 16
     assert len(col.notes) == 16
@@ -376,10 +313,10 @@ def test_render_three_context_lines(mock_note_default):
 
 
 ### RECITATION LINES ###
-def test_render_two_recitation_lines(mock_note_default):
-    col = mock_note_default['col']
-    mock_note_default['recite_lines'] = 2
-    num_added = add_notes(**mock_note_default)
+def test_render_two_recitation_lines(mock_note):
+    col = mock_note['col']
+    mock_note['recite_lines'] = 2
+    num_added = add_notes(**mock_note)
 
     # Unlike grouping, having more recitation lines involves overlap,
     # so there are still 16 notes.
@@ -421,17 +358,17 @@ def test_render_two_recitation_lines(mock_note_default):
 
 
 ### TRIPLE PLAY ###
-def test_render_increase_all_options(mock_note_default):
+def test_render_increase_all_options(mock_note):
     """
     In this configuration, we have lines grouped into sets of 2 -- so 8
     virtual lines -- and then we show 3 virtual lines as context (6 physical
     lines) and request 2 virtual lines for recitation (4 physical lines).
     """
-    col = mock_note_default['col']
-    mock_note_default['context_lines'] = 3
-    mock_note_default['recite_lines'] = 2
-    mock_note_default['group_lines'] = 2
-    num_added = add_notes(**mock_note_default)
+    col = mock_note['col']
+    mock_note['context_lines'] = 3
+    mock_note['recite_lines'] = 2
+    mock_note['group_lines'] = 2
+    num_added = add_notes(**mock_note)
 
     # Only grouping reduces the number; the other parameters cause only
     # additional overlap.

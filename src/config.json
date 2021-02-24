@@ -4,7 +4,6 @@
     "autoTagPrefix": "Poetry::",
     "autoTagTitle": false,
     "autoTagWhitespaceReplace": "-",
-
     
     "endOfStanzaMarker": " ⊗",
     "endOfTextMarker": " □"
