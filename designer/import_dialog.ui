@@ -42,7 +42,7 @@
      <item row="4" column="0">
       <widget class="QLabel" name="label_author">
        <property name="text">
-        <string>&amp;Author</string>
+        <string>Author</string>
        </property>
        <property name="buddy">
         <cstring>authorBox</cstring>
@@ -143,6 +143,19 @@
         <number>10</number>
        </property>
       </widget>
+     </item>
+     <item row="11" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Group by &amp;stanza</string>
+       </property>
+       <property name="buddy">
+        <cstring>tagsBox</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="1">
+      <widget class="QLineEdit" name="tagsBox"/>
      </item>
     </layout>
    </item>
